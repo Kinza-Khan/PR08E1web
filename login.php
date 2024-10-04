@@ -1,5 +1,6 @@
 <?php
 include("php/query.php");
+include("components/header.php");
 ?>
 
 <!doctype html>
@@ -18,6 +19,7 @@ include("php/query.php");
 
 
     <div class="container p-5">
+      <div class="col-md-7 mt-5">
       <form action="" method="post">
         <div class="form-group ">
           <label for="">Email</label>
@@ -31,6 +33,11 @@ include("php/query.php");
         </div>
         <button name="userLogin" class="btn btn-info">Login</button>
         </form>
+        </div>
     </div>
   </body>
 </html>
+
+<?php
+include("components/footer.php");
+?>

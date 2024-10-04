@@ -39,6 +39,62 @@ if(isset($_GET['remove'])){
 		}
 	}
 }
+
+// checkout
+
+
+if(isset($_GET['checkout'])){
+	$uId = $_SESSION['userId'];
+	$uName = $_SESSION['userName'];
+	$uEmail = $_SESSION['userEmail'];
+	foreach($_SESSION['finalCart'] as $key => $value){
+			$pId = $value['p_id'];
+			$pName = $value['p_name'];
+			$pPrice = $value['p_price'];
+			$pQty = $value['p_qty'];
+
+			$query = $pdo->prepare("insert into orders(u_id , u_name , u_email ,p_id , p_name , p_price , p_qty) values (:u_id , :u_name , :u_email , :p_id , :p_name , :p_price , :p_qty)");
+			$query->bindParam('u_id',$uId);
+			$query->bindParam('u_name',$uName);
+			$query->bindParam('u_email',$uEmail);
+			$query->bindParam('p_id',$pId);
+			$query->bindParam('p_name',$pName);
+			$query->bindParam('p_price',$pPrice);
+			$query->bindParam('p_qty',$pQty);
+			$query->execute();
+			echo "<script>alert('order added successfully')</script>";
+
+	}
+
+	// invoice Query
+	$totalAmount = 0 ;
+	$totalQty = 0 ;
+	foreach($_SESSION['finalCart'] as $key => $value){
+		$totalQty  += $value['p_qty']  ;
+		$totalAmount += $value['p_price']*$value['p_qty'];
+	}
+	$invoice_query = $pdo->prepare("insert into invoices (u_id , u_name , u_email , totalQty , totalAmount) values (:u_id , :u_name , :u_email , :totalQty , :totalAmount)");
+	$invoice_query->bindParam('u_id',$uId);
+	$invoice_query->bindParam('u_name',$uName);
+	$invoice_query->bindParam('u_email',$uEmail);
+	$invoice_query->bindParam('totalAmount',$totalAmount);
+	$invoice_query->bindParam('totalQty',$totalQty);
+	$invoice_query->execute();
+
+	unset($_SESSION['finalCart']);
+
+}
+
+if(isset($_POST['updatedQtyInp'])){
+	$pId = $_POST['productId'];
+	$pQty = $_POST['productQty'];
+	foreach($_SESSION['finalCart'] as $key => $value){
+				if($value['p_id'] == $pId){
+					$_SESSION['finalCart'][$key]['p_qty'] = $pQty ;
+				}
+	}
+
+}
 ?>
 	<!-- breadcrumb -->
 	<div class="container mt-5">
@@ -84,21 +140,22 @@ if(isset($_GET['remove'])){
 										</div>
 									</td>
 									<td class="column-2"><?php echo $value['p_name']?></td>
-									<td class="column-3">$ <?php echo $value['p_price']?></td>
+									<td class="column-3"> <?php echo $value['p_price']?></td>
 									<td class="column-4">
-										<div class="wrap-num-product flex-w m-l-auto m-r-0">
-											<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
+										<div class="wrap-num-product flex-w m-l-auto m-r-0 qtyBox">
+											<input type="hidden" class="productId" value="<?php echo $value['p_id']?>">
+											<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m dec">
 												<i class="fs-16 zmdi zmdi-minus"></i>
 											</div>
 
 											<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product2" value="<?php echo $value['p_qty']?>">
 
-											<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
+											<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m inc">
 												<i class="fs-16 zmdi zmdi-plus"></i>
 											</div>
 										</div>
 									</td>
-									<td class="column-5">$<?php echo $value['p_price'] * $value['p_qty']?></td>
+									<td class="column-5"><?php echo $value['p_price'] * $value['p_qty']?></td>
 									<td class="column-6"><a href="?remove=<?php echo $value['p_id']?>" class="btn btn-danger">REMOVE</a></td>
 								</tr>
 								<?php
@@ -202,10 +259,28 @@ if(isset($_GET['remove'])){
 								</span>
 							</div>
 						</div>
-
-						<button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
+							
+						
+						<?php
+						if(isset($_SESSION['userEmail'])){
+						
+						?>
+						<a href="?checkout" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
 							Proceed to Checkout
-						</button>
+						</a>
+
+						<?php
+						}
+						else{
+						?>
+
+						<a href="login.php" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
+							Proceed to Checkout
+						</a>
+
+						<?php
+						}
+						?>
 					</div>
 				</div>
 			</div>

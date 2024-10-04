@@ -81,10 +81,11 @@ if(isset($_POST['userLogin'])){
                         
                         }
                         else if($user['role_id'] == 2){
+                              $_SESSION['userId'] = $user['id'];
                                 $_SESSION['userEmail'] = $user['email'];
                                 $_SESSION['userName'] = $user['name'];
+                                echo "<script>location.assign('index.php')</script>"; 
                         }
-
                        
                     }
                     else{
