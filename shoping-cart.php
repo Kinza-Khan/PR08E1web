@@ -63,9 +63,7 @@ if(isset($_GET['checkout'])){
 			$query->bindParam('p_qty',$pQty);
 			$query->execute();
 			echo "<script>alert('order added successfully')</script>";
-
 	}
-
 	// invoice Query
 	$totalAmount = 0 ;
 	$totalQty = 0 ;
